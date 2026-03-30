@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email DM Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="https://cdn.serverse.org/images/ekmand-favicon.png" type="image/png">
+    <link rel="stylesheet" href="styles.css?v=5">
+</head>
+<body>
+    <!-- Overlay for drag and drop / upload screen -->
+    <div id="upload-overlay" class="upload-overlay active">
+        <div class="upload-card">
+            <img src="https://cdn.serverse.org/images/white-logo.png" alt="Ekmand Logo" class="upload-logo-img">
+            <h1>Drop your .eml here</h1>
+            <p>We'll unpack the nested email thread into a Discord-Like layout.</p>
+            <button id="browse-btn" class="primary-btn">Select File</button>
+            <input type="file" id="file-input" accept=".eml,.txt" hidden />
+        </div>
+        <div class="site-footer">
+            <p>Developed by <strong>Ethan Dutson</strong></p>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app-container" class="app-container hidden">
+        <!-- Left Sidebar: Channels/Threads -->
+        <nav class="sidebar">
+            <div class="server-header">
+                <img src="https://cdn.serverse.org/images/white-logo.png" alt="Ekmand Logo" class="brand-logo">
+            </div>
+            <div class="channel-list">
+                <div class="channel-group">INFORMATION</div>
+                <div class="channel active">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <span id="subject-label">Subject</span>
+                </div>
+                <div class="channel">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span id="date-label">Date</span>
+                </div>
+                <div class="channel">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <span id="sender-label">Original Sender</span>
+                </div>
+            </div>
+            <div class="user-controls">
+                <div class="user-avatar" style="background: linear-gradient(135deg, var(--accent-1), var(--accent-2));">ME</div>
+                <div class="user-info">
+                    <div class="user-name">User</div>
+                    <div class="user-status">Reading Email</div>
+                </div>
+                <button id="settings-btn" class="icon-btn" title="Settings">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Chat Area -->
+        <main class="chat-area">
+            <header class="chat-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <h3 id="chat-title">message-thread</h3>
+            </header>
+            <div class="messages-container" id="messages-container">
+                <!-- Messages will be injected here dynamically -->
+                <div class="message-welcome">
+                    <div class="welcome-icon">💬</div>
+                    <h1>Welcome to the Thread!</h1>
+                    <p>This is the start of the <strong id="welcome-subject">Thread</strong> history.</p>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <div class="chat-input-wrapper">
+                    <input type="text" placeholder="You are viewing a static email format..." disabled />
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar: Members -->
+        <aside class="members-sidebar">
+            <div class="members-group">PARTICIPANTS - <span id="participant-count">0</span></div>
+            <div id="members-list">
+                <!-- Participants injected here -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- User Popout -->
+    <div id="user-popout" class="user-popout">
+        <div class="popout-header"></div>
+        <div class="popout-body">
+            <div class="popout-avatar" id="popout-avatar"></div>
+            <div class="popout-info">
+                <h3 id="popout-name">Name</h3>
+                <p id="popout-email">email@example.com</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-card">
+            <header class="modal-header">
+                <h2>Settings</h2>
+                <button id="close-settings" class="icon-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </header>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Theme Appearance</h3>
+                        <p>Switch between light and dark mode.</p>
+                    </div>
+                    <div class="theme-toggle">
+                        <button id="theme-btn-light" class="theme-btn">Light</button>
+                        <button id="theme-btn-dark" class="theme-btn active">Dark</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Logic execution -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
